@@ -40,11 +40,11 @@ func GetLevel() int {
 }
 
 //SetLevel 设置日志级别
-func SetLevel(l int) {
-	if l > FatalLevel || l < TraceLevel {
+func SetLevel(lev int) {
+	if lev > FatalLevel || lev < TraceLevel {
 		level = TraceLevel
 	} else {
-		level = l
+		level = lev
 	}
 }
 
@@ -133,6 +133,7 @@ func Error(format string, v ...interface{}) {
 
 //Info 程序信息类型日志
 func Info(format string, v ...interface{}) {
+
 	if level <= InfoLevel {
 		var str string
 		str = "[Info] " + format

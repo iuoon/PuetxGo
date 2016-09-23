@@ -17,6 +17,9 @@ type GateConfig struct {
 	Port1 int
 	Host2 string
 	Port2 int
+	LogLevel int
+	MemoryPool int
+	MessagePool int
 
 	DbHost    string
 	DbPort    int
@@ -43,6 +46,9 @@ func LoadConfig() error {
 	config.Port1, _ = cfg.Section("Server").Key("port1").Int()
 	config.Host2 = cfg.Section("Server").Key("host2").String()
 	config.Port2, _ = cfg.Section("Server").Key("port2").Int()
+	config.LogLevel, _ = cfg.Section("Server").Key("logLevel").Int()
+	config.MemoryPool, _ = cfg.Section("Server").Key("memoryPool").Int()
+	config.MessagePool, _ = cfg.Section("Server").Key("messagePool").Int()
 
 	config.DbHost = cfg.Section("DB").Key("host").String()
 	config.DbPort, _ = cfg.Section("DB").Key("port").Int()
@@ -55,11 +61,15 @@ func LoadConfig() error {
 	config.RedisPort, _ = cfg.Section("Redis").Key("port").Int()
 	config.RedisDb = cfg.Section("Redis").Key("db").String()
 
+	PtUtil.SetLevel(config.LogLevel)
 	PtUtil.Info("#################Puetx Config#######################")
 	PtUtil.Info("Host1      : %s", config.Host1)
 	PtUtil.Info("Port1      : %d", config.Port1)
 	PtUtil.Info("Host2      : %s", config.Host2)
 	PtUtil.Info("Port2      : %d", config.Port2)
+	PtUtil.Info("LogLevel   : %d", config.LogLevel)
+	PtUtil.Info("MemoryPool   : %d", config.MemoryPool)
+	PtUtil.Info("MessagePool   : %d", config.MessagePool)
 	PtUtil.Info("DbHost     : %s", config.DbHost)
 	PtUtil.Info("DbPort     : %d", config.DbPort)
 	PtUtil.Info("DbUser     : %s", config.DbUser)
