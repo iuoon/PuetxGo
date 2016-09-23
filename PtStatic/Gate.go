@@ -13,6 +13,7 @@ import (
 
 import (
 	"git.oschina.net/jkkkls/goxiang/GxMisc"
+	"github.com/iuoon/PuetxGo/PtUtil"
 )
 
 //GateInfoTableName 网关列表，redis的表名
@@ -31,7 +32,7 @@ type GateInfo struct {
 
 //SaveGate 保存指定网关信息
 func SaveGate(client *redis.Client, gate *GateInfo) error {
-	buf, err := GxMisc.MsgToBuf(gate)
+	buf, err := PtUtil.MsgToBuf(gate)
 	if err != nil {
 		return err
 	}
@@ -48,12 +49,12 @@ func GetAllGate(client *redis.Client, gates *[]*GateInfo) error {
 		return err
 	}
 	for _, v := range r {
-		j, err2 := GxMisc.BufToMsg([]byte(v))
+		j, err2 := PtUtil.BufToMsg([]byte(v))
 		if err2 != nil {
 			return err2
 		}
 		gate := new(GateInfo)
-		GxMisc.JSONToStruct(j, gate)
+		PtUtil.JSONToStruct(j, gate)
 		*gates = append(*gates, gate)
 	}
 	return nil

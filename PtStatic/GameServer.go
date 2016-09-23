@@ -13,7 +13,7 @@ import (
 )
 
 import (
-	"git.oschina.net/jkkkls/goxiang/GxMisc"
+	"github.com/iuoon/PuetxGo/PtUtil"
 )
 
 //GameServerTableName 服务器列表，redis的表名
@@ -29,7 +29,7 @@ type GameServer struct {
 
 //SaveGameServer 保存指定服务器信息
 func SaveGameServer(client *redis.Client, server *GameServer) error {
-	buf, err := GxMisc.MsgToBuf(server)
+	buf, err := PtUtil.MsgToBuf(server)
 	if err != nil {
 		return err
 	}
@@ -48,12 +48,12 @@ func GetAllGameServer(client *redis.Client, servers *[]*GameServer) error {
 	}
 
 	for _, v := range r {
-		j, err2 := GxMisc.BufToMsg([]byte(v))
+		j, err2 := PtUtil.BufToMsg([]byte(v))
 		if err2 != nil {
 			return err2
 		}
 		server := new(GameServer)
-		GxMisc.JSONToStruct(j, server)
+		PtUtil.JSONToStruct(j, server)
 		*servers = append(*servers, server)
 	}
 	return nil

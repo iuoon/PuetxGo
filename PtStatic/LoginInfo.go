@@ -15,7 +15,7 @@ import (
 )
 
 import (
-	"git.oschina.net/jkkkls/goxiang/GxMisc"
+	"github.com/iuoon/PuetxGo/PtDB"
 )
 
 //LoginInfo 帐号录信息
@@ -40,18 +40,18 @@ var GateRemoteTableName = "h_gate_remote"
 
 //Set4Redis ...
 func (info *LoginInfo) Set4Redis(client *redis.Client) error {
-	GxMisc.SaveToRedis(client, info)
+	PtDB.SaveToRedis(client, info)
 	return nil
 }
 
 //Get4Redis ...
 func (info *LoginInfo) Get4Redis(client *redis.Client) error {
-	return GxMisc.LoadFromRedis(client, info)
+	return PtDB.LoadFromRedis(client, info)
 }
 
 //Del4Redis ...
 func (info *LoginInfo) Del4Redis(client *redis.Client) error {
-	return GxMisc.DelFromRedis(client, info)
+	return PtDB.DelFromRedis(client, info)
 }
 
 //Set4Mysql ...
