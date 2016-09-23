@@ -1,22 +1,21 @@
 package main
 
 /**
- * Title:网关
+ * Title:加载配置
  * User: iuoon
  * Date: 2016-9-22
  * Version: 1.0
  */
 import (
-	"log"
+	"github.com/iuoon/PuetxGo/PtUtil"
 )
 
 func main() {
-	flag := LoadConfig()
-	if !flag {
-		log.Println("加载配置失败！")
+	PtUtil.InitLogger("puetx")
+	err := LoadConfig()
+	if err != nil {
+		PtUtil.Debug("load config fail！")
 		return
-	} else {
-		log.Println("redis配置加载成功！")
 	}
 
 }
