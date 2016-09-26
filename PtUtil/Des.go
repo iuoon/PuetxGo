@@ -10,8 +10,13 @@ import (
 	"bytes"
 	"crypto/cipher"
 	"crypto/des"
+	"encoding/base64"
 )
 
+const (
+	base64Ascll = "23456QRSTUabcdVWXYZHijKLAWDCABDstEFGuvwxyzGHIJklmnopqr17890"
+)
+var coder = base64.NewEncoding(base64Ascll)
 //定义向量
 var iv = "15425832"
 
@@ -32,6 +37,7 @@ func DesEncrypt(origData []byte) ([]byte, error) {
 	// 根据CryptBlocks方法的说明，如下方式初始化crypted也可以
 	// crypted := origData
 	blockMode.CryptBlocks(crypted, origData)
+	crypted=[]byte(coder.EncodeToString(crypted)) //再进行base加密
 	return crypted, nil
 }
 
@@ -53,6 +59,7 @@ func DesDecrypt(crypted []byte) ([]byte, error) {
 	blockMode.CryptBlocks(origData, crypted)
 	origData = pKCS5UnPadding(origData)
 	// origData = ZeroUnPadding(origData)
+	origData=[]byte(coder.DecodeString(BytetoString(origData))) //再进行base解码
 	return origData, nil
 }
 
