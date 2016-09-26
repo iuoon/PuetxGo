@@ -14,16 +14,16 @@ import (
 )
 
 import (
-	"git.oschina.net/jkkkls/goxiang/GxProto"
 	"github.com/iuoon/PuetxGo/PtUtil"
 	"github.com/iuoon/PuetxGo/PtDB"
 	"github.com/iuoon/PuetxGo/PtStatic"
 	"github.com/iuoon/PuetxGo/PtMsg"
 	"github.com/iuoon/PuetxGo/PtNet"
+	"github.com/iuoon/PuetxGo/PtProto"
 )
 
-func fillLoginRsp(rdClient *redis.Client, player *PtStatic.Player, rsp *GxProto.LoginServerRsp) {
-	rsp.Info = &GxProto.LoginRspInfo{
+func fillLoginRsp(rdClient *redis.Client, player *PtStatic.Player, rsp *PtProto.LoginServerRsp) {
+	rsp.Info = &PtProto.LoginRspInfo{
 		Token: proto.String(player.SaveToken(rdClient)),
 	}
 
@@ -57,7 +57,7 @@ func fillLoginRsp(rdClient *redis.Client, player *PtStatic.Player, rsp *GxProto.
 		if serverID == servers[i].ID {
 			lastts = ts
 		}
-		rsp.GetInfo().Srvs = append(rsp.GetInfo().Srvs, &GxProto.GameSrvInfo{
+		rsp.GetInfo().Srvs = append(rsp.GetInfo().Srvs, &PtProto.GameSrvInfo{
 			Index:  proto.Uint32(uint32(servers[i].ID)),
 			Name:   proto.String(servers[i].Name),
 			Status: proto.Uint32(servers[i].Status),
@@ -71,8 +71,8 @@ func login(conn *PtNet.GxTCPConn, msg *PtMsg.GxMessage) error {
 	rdClient := PtDB.PopRedisClient()
 	defer PtDB.PushRedisClient(rdClient)
 
-	var req GxProto.LoginServerReq
-	var rsp GxProto.LoginServerRsp
+	var req PtProto.LoginServerReq
+	var rsp PtProto.LoginServerRsp
 	err := msg.UnpackagePbmsg(&req)
 	if err != nil {
 		PtUtil.Debug("UnpackagePbmsg error")
@@ -109,8 +109,8 @@ func register(conn *PtNet.GxTCPConn, msg *PtMsg.GxMessage) error {
 	rdClient := PtDB.PopRedisClient()
 	defer PtDB.PushRedisClient(rdClient)
 
-	var req GxProto.LoginServerReq
-	var rsp GxProto.LoginServerRsp
+	var req PtProto.LoginServerReq
+	var rsp PtProto.LoginServerRsp
 	err := msg.UnpackagePbmsg(&req)
 	if err != nil {
 		PtUtil.Debug("UnpackagePbmsg error")
@@ -152,7 +152,7 @@ func getGatesInfo(conn *PtNet.GxTCPConn, msg *PtMsg.GxMessage) error {
 	rdClient := PtDB.PopRedisClient()
 	defer PtDB.PushRedisClient(rdClient)
 
-	var rsp GxProto.GetGatesInfoRsp
+	var rsp PtProto.GetGatesInfoRsp
 	var gates []*PtStatic.GateInfo
 	PtStatic.GetAllGate(rdClient, &gates)
 	for i := 0; i < len(gates); i++ {
