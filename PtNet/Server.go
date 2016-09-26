@@ -121,9 +121,9 @@ func (server *GxTCPServer) runConn(conn net.Conn) {
 	server.addrConns[conn.RemoteAddr().String()] = gxConn
 	server.mutex.Unlock()
 
-	server.Nc(gxConn)
+	server.Nc(gxConn)  //回调到NewConn
 
-	go gxConn.runHeartbeat()
+	go gxConn.runHeartbeat() 
 
 	for {
 		msg, err := gxConn.Recv()

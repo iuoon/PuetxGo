@@ -50,6 +50,7 @@ func GetGxMessage() *GxMessage {
 		gxMessagePoolCount++
 		msg = NewGxMessage()
 	} else {
+
 		msg = gxMessagePool.Front().Value.(*GxMessage)
 		gxMessagePool.Remove(gxMessagePool.Front())
 
@@ -59,9 +60,12 @@ func GetGxMessage() *GxMessage {
 		msg.SetRet(0)
 		msg.SetSeq(0)
 		msg.ClearMask()
+		PtUtil.Debug("get msg from pool:%s",PtUtil.BytetoString(msg.Header))
 	}
 	return msg
 }
+
+
 
 //ReturnGxMessage 归还一个新消息
 //消息流程结束后，系统会回收消息

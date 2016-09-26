@@ -20,12 +20,12 @@ import (
 
 var server *PtNet.GxTCPServer
 
-//NewConn 新客户端连接
+//NewConn 新客户端连接（回调）
 func NewConn(conn *PtNet.GxTCPConn) {
 	PtUtil.Debug("new connnect, remote: %s", conn.Remote)
 }
 
-//DisConn 客户端断开连接
+//DisConn 客户端断开连接（回调）
 func DisConn(conn *PtNet.GxTCPConn) {
 	PtUtil.Debug("dis connnect, remote: %s", conn.Remote)
 }

@@ -10,16 +10,14 @@ package PtMsg
 import (
 	"bytes"
 	"encoding/binary"
-	"errors"
+	_"errors"
 	"fmt"
 	"github.com/golang/protobuf/proto"
 	"github.com/iuoon/PuetxGo/PtUtil"
 	"github.com/iuoon/PuetxGo/PtStatic"
+	"errors"
 )
 
-import (
-
-)
 
 const (
 	//MessageMaskDisconn 是否断开连接
@@ -48,8 +46,6 @@ const (
 	MessageHeaderLen = 14
 )
 
-//暂时写死加密密钥
-var key = "c14faab0"
 
 //GxMessage 消息类，包括消息头和消息体
 type GxMessage struct {
@@ -78,7 +74,7 @@ func (msg *GxMessage) Package(buff []byte) error {
 		return nil
 	}
 
-	enbuff, _ := PtUtil.DesEncrypt(buff, []byte(key))
+	enbuff, _ := PtUtil.DesEncrypt(buff)
 	l := len(enbuff)
 
 	msg.FreeDate()
@@ -93,7 +89,7 @@ func (msg *GxMessage) Unpackage() ([]byte, error) {
 	if msg.GetLen() == 0 {
 		return []byte(""), nil
 	}
-	return PtUtil.DesDecrypt(msg.Data, []byte(key))
+	return PtUtil.DesDecrypt(msg.Data)
 }
 
 //PackagePbmsg 打包protobuf消息

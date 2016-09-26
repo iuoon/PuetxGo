@@ -10,17 +10,20 @@ import (
 	"crypto/md5"
 	"errors"
 	"fmt"
-	"github.com/monnand/dhkx"
 	"io"
 	"net"
 	"sync"
 	"time"
+
+	"github.com/monnand/dhkx"
 )
 
 import (
-	"github.com/iuoon/PuetxGo/PtUtil"
 	"github.com/iuoon/PuetxGo/PtMsg"
+	"github.com/iuoon/PuetxGo/PtUtil"
+	"strings"
 )
+
 
 //GxTCPConn tcp连接
 type GxTCPConn struct {
@@ -88,7 +91,7 @@ func (conn *GxTCPConn) Send(msg *PtMsg.GxMessage) error {
 	//写消息头
 	len, err := conn.Conn.Write(msg.Header)
 	if err != nil {
-		PtUtil.Error("write header error:%s",err)
+		PtUtil.Error("write header error:%s", err)
 	}
 	if uint16(len) != PtMsg.MessageHeaderLen {
 		return errors.New("send error")
@@ -105,7 +108,7 @@ func (conn *GxTCPConn) Send(msg *PtMsg.GxMessage) error {
 	//写消息体
 	len, err = conn.Conn.Write(msg.Data)
 	if err != nil {
-		PtUtil.Error("write body error:%s",err)
+		PtUtil.Error("write body error:%s", err)
 	}
 	if uint16(len) != msg.GetLen() {
 		return errors.New("send error")
@@ -118,13 +121,14 @@ func (conn *GxTCPConn) Recv() (*PtMsg.GxMessage, error) {
 	//写消息头
 	//如果读取消息失败，消息要归还给消息池
 	msg := PtMsg.GetGxMessage()
-	len, err := conn.Conn.Read(msg.Header)
+	leng, err := conn.Conn.Read(msg.Header)  //这里返回时将换行符 \r\n 写入了结尾
 	if err != nil {
 		PtMsg.FreeMessage(msg)
 		conn.Connected = false
 		return nil, err
 	}
-	if uint16(len) != PtMsg.MessageHeaderLen {
+	PtUtil.Debug("消息长度：%d,消息内容：%s",leng,strings.Replace(PtUtil.BytetoString(msg.Header),"\r\n","",2))
+	if uint16(leng) != PtMsg.MessageHeaderLen {
 		PtMsg.FreeMessage(msg)
 		return nil, errors.New("recv error")
 	}
@@ -141,13 +145,14 @@ func (conn *GxTCPConn) Recv() (*PtMsg.GxMessage, error) {
 
 	//写消息体
 	msg.InitData()
-	len, err = conn.Conn.Read(msg.Data)
+	leng, err = conn.Conn.Read(msg.Data)
+	PtUtil.Debug("消息长度：%d,消息内容：%s",leng,strings.Replace(PtUtil.BytetoString(msg.Data),"\r\n","",2))
 	if err != nil {
 		PtMsg.FreeMessage(msg)
 		conn.Connected = false
 		return nil, err
 	}
-	if uint16(len) != msg.GetLen() {
+	if uint16(leng) != msg.GetLen() {
 		PtMsg.FreeMessage(msg)
 		return nil, errors.New("recv error")
 	}
@@ -203,13 +208,13 @@ func (conn *GxTCPConn) ServerKey() error {
 	PtUtil.Trace("recv cleint encrypt random string ok, len: %d, keylen: %d, enStr: %x", n, len(enStr), enStr)
 
 	//解密客户端发送的加密随机字符串
-	deStr, _ := PtUtil.DesDecrypt(enStr, conn.Key)
+	deStr, _ := PtUtil.DesDecrypt(enStr)
 	if randomStr != string(deStr) {
 		PtUtil.Error("random string error, randomStr: %s, destr: %s", randomStr, deStr)
 		return errors.New("crypt key error")
 	}
 
-	PtUtil.Trace("get key ok, key: %s", conn.Key)
+
 	return nil
 }
 
@@ -240,12 +245,12 @@ func (conn *GxTCPConn) ClientKey() error {
 	PtUtil.Trace("new crype key, len: %d, key: %s", len(conn.Key), conn.Key)
 
 	//加密随机字符串
-	enStr, err1 := PtUtil.DesEncrypt([]byte(randomStr), conn.Key)
+	enStr, err1 := PtUtil.DesEncrypt([]byte(randomStr))
 	if err1 != err {
 		PtUtil.Error("encrype random fail, error: %s", err)
 		return err1
 	}
-	PtUtil.Trace("encrype random ok, enStr: %x", enStr)
+
 
 	// 发送加密随机字符串
 	n, err = conn.Conn.Write(enStr)
@@ -253,7 +258,7 @@ func (conn *GxTCPConn) ClientKey() error {
 		PtUtil.Error("send encrypt random string fail, error: %s", err)
 		return err
 	}
-	PtUtil.Trace("send encrypt random string ok, key: %s", conn.Key)
+
 	return nil
 }
 
@@ -306,13 +311,13 @@ func (conn *GxTCPConn) ServerDhKey() error {
 	PtUtil.Trace("recv cleint encrypt random string ok, len: %d, keylen: %d, enStr: %x", n, len(enStr), enStr)
 
 	//解密客户端发送的加密随机字符串
-	deStr, _ := PtUtil.DesDecrypt(enStr, conn.Key[:8])
+	deStr, _ := PtUtil.DesDecrypt(enStr)
 	if randomStr != string(deStr) {
 		PtUtil.Error("random string error, randomStr: %s, destr: %s", randomStr, deStr)
 		return errors.New("crypt key error")
 	}
 
-	PtUtil.Trace("Dh excharhe key ok, key: %x", conn.Key[:8])
+
 	return nil
 }
 
@@ -356,7 +361,7 @@ func (conn *GxTCPConn) ClientDhKey() error {
 	PtUtil.Trace("new crype key, len: %d, key: %x", len(conn.Key), conn.Key)
 
 	//加密随机字符串
-	enStr, err1 := PtUtil.DesEncrypt([]byte(randomStr), conn.Key[:8])
+	enStr, err1 := PtUtil.DesEncrypt([]byte(randomStr))
 	if err1 != err {
 		PtUtil.Error("encrype random fail, error: %s", err)
 		return err1
@@ -369,6 +374,7 @@ func (conn *GxTCPConn) ClientDhKey() error {
 		PtUtil.Error("send encrypt random string fail, error: %s", err)
 		return err
 	}
-	PtUtil.Trace("send encrypt random string ok, key: %x", conn.Key[:8])
+
 	return nil
 }
+

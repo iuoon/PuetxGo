@@ -12,16 +12,22 @@ import (
 	"crypto/des"
 )
 
-//DesEncrypt des加密函数，返回加密后的结果长度是8的倍数
-func DesEncrypt(origData, key []byte) ([]byte, error) {
-	block, err := des.NewCipher(key)
+//定义向量
+var iv = "15425832"
+
+//定义密钥
+var key = "hxxczcwczykjhxxczcwczykj"
+
+//DesEncrypt 3des cbc加密函数，返回加密后的结果长度是8的倍数
+func DesEncrypt(origData []byte) ([]byte, error) {
+	block, err := des.NewTripleDESCipher([]byte(key))
 	if err != nil {
 		return nil, err
 	}
 	origData = pKCS5Padding(origData, block.BlockSize())
 	// origData = ZeroPadding(origData, block.BlockSize())
 
-	blockMode := cipher.NewCBCEncrypter(block, key)
+	blockMode := cipher.NewCBCEncrypter(block, []byte(iv))
 	crypted := make([]byte, len(origData))
 	// 根据CryptBlocks方法的说明，如下方式初始化crypted也可以
 	// crypted := origData
@@ -35,13 +41,13 @@ func pKCS5Padding(ciphertext []byte, blockSize int) []byte {
 	return append(ciphertext, padtext...)
 }
 
-//DesDecrypt des解密函数，传入解密内容长度必须是8的倍数
-func DesDecrypt(crypted, key []byte) ([]byte, error) {
-	block, err := des.NewCipher(key)
+//DesDecrypt 3des cbc解密函数，传入解密内容长度必须是8的倍数
+func DesDecrypt(crypted []byte) ([]byte, error) {
+	block, err := des.NewTripleDESCipher([]byte(key))
 	if err != nil {
 		return nil, err
 	}
-	blockMode := cipher.NewCBCDecrypter(block, key)
+	blockMode := cipher.NewCBCDecrypter(block, []byte(iv))
 	origData := make([]byte, len(crypted))
 	// origData := crypted
 	blockMode.CryptBlocks(origData, crypted)

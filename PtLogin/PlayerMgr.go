@@ -63,10 +63,11 @@ func PopPlayerSQL() string {
 //LoadPlayer 加载所有帐号
 func LoadPlayer() error {
 	str := PtDB.GenerateSelectAllSQL(&PtStatic.Player{}, "")
-	PtUtil.Info("load all users sql:%s",str)
+	PtUtil.Info("load all users sql:%s", str)
 	rows, err := PtDB.MysqlPool.Query(str)
 	defer rows.Close()
 	if err != nil {
+		PtUtil.Error("excsql err: %s", err)
 		return err
 	}
 

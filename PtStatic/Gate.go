@@ -12,7 +12,6 @@ import (
 )
 
 import (
-	"git.oschina.net/jkkkls/goxiang/GxMisc"
 	"github.com/iuoon/PuetxGo/PtUtil"
 )
 
