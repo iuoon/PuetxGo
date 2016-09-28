@@ -19,11 +19,11 @@ import (
 )
 
 import (
+	"strings"
+
 	"github.com/iuoon/PuetxGo/PtMsg"
 	"github.com/iuoon/PuetxGo/PtUtil"
-	"strings"
 )
-
 
 //GxTCPConn tcp连接
 type GxTCPConn struct {
@@ -121,13 +121,13 @@ func (conn *GxTCPConn) Recv() (*PtMsg.GxMessage, error) {
 	//写消息头
 	//如果读取消息失败，消息要归还给消息池
 	msg := PtMsg.GetGxMessage()
-	leng, err := conn.Conn.Read(msg.Header)  //这里返回时将换行符 \r\n 写入了结尾
+	leng, err := conn.Conn.Read(msg.Header) //这里返回时将换行符 \r\n 写入了结尾
 	if err != nil {
 		PtMsg.FreeMessage(msg)
 		conn.Connected = false
 		return nil, err
 	}
-	PtUtil.Debug("消息长度：%d,消息内容：%s",leng,strings.Replace(PtUtil.BytetoString(msg.Header),"\r\n","",2))
+	PtUtil.Debug("消息头长度：%d,头内容：%s", leng, strings.Replace(string(msg.Header), "\r\n", "", 2))
 	if uint16(leng) != PtMsg.MessageHeaderLen {
 		PtMsg.FreeMessage(msg)
 		return nil, errors.New("recv error")
@@ -137,7 +137,7 @@ func (conn *GxTCPConn) Recv() (*PtMsg.GxMessage, error) {
 		PtMsg.FreeMessage(msg)
 		return nil, err
 	}
-
+	PtUtil.Debug("消息长度：%d", msg.GetLen())
 	//消息头没有数据，则返回
 	if msg.GetLen() == 0 {
 		return msg, nil
@@ -146,7 +146,7 @@ func (conn *GxTCPConn) Recv() (*PtMsg.GxMessage, error) {
 	//写消息体
 	msg.InitData()
 	leng, err = conn.Conn.Read(msg.Data)
-	PtUtil.Debug("消息长度：%d,消息内容：%s",leng,strings.Replace(PtUtil.BytetoString(msg.Data),"\r\n","",2))
+	PtUtil.Debug("消息体长度：%d,消息体内容：%s", leng, strings.Replace(string(msg.Data), "\r\n", "", 2))
 	if err != nil {
 		PtMsg.FreeMessage(msg)
 		conn.Connected = false
@@ -214,7 +214,6 @@ func (conn *GxTCPConn) ServerKey() error {
 		return errors.New("crypt key error")
 	}
 
-
 	return nil
 }
 
@@ -250,7 +249,6 @@ func (conn *GxTCPConn) ClientKey() error {
 		PtUtil.Error("encrype random fail, error: %s", err)
 		return err1
 	}
-
 
 	// 发送加密随机字符串
 	n, err = conn.Conn.Write(enStr)
@@ -317,7 +315,6 @@ func (conn *GxTCPConn) ServerDhKey() error {
 		return errors.New("crypt key error")
 	}
 
-
 	return nil
 }
 
@@ -377,4 +374,3 @@ func (conn *GxTCPConn) ClientDhKey() error {
 
 	return nil
 }
-

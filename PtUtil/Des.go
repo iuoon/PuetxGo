@@ -14,12 +14,11 @@ import (
 )
 
 const (
-	base64Ascll = "23456QRSTUabcdVWXYZHijKLAWDCABDstEFGuvwxyzGHIJklmnopqr17890"
+	base64Ascll = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789abcdefghijklmnopqrstuvwxyz+/"
 )
 var coder = base64.NewEncoding(base64Ascll)
 //定义向量
 var iv = "15425832"
-
 //定义密钥
 var key = "hxxczcwczykjhxxczcwczykj"
 
@@ -49,6 +48,7 @@ func pKCS5Padding(ciphertext []byte, blockSize int) []byte {
 
 //DesDecrypt 3des cbc解密函数，传入解密内容长度必须是8的倍数
 func DesDecrypt(crypted []byte) ([]byte, error) {
+	crypted,_=coder.DecodeString(string(crypted)) //先进行base解码
 	block, err := des.NewTripleDESCipher([]byte(key))
 	if err != nil {
 		return nil, err
@@ -59,7 +59,6 @@ func DesDecrypt(crypted []byte) ([]byte, error) {
 	blockMode.CryptBlocks(origData, crypted)
 	origData = pKCS5UnPadding(origData)
 	// origData = ZeroUnPadding(origData)
-	origData=[]byte(coder.DecodeString(BytetoString(origData))) //再进行base解码
 	return origData, nil
 }
 

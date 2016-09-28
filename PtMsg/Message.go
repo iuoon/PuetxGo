@@ -15,7 +15,7 @@ import (
 	"github.com/golang/protobuf/proto"
 	"github.com/iuoon/PuetxGo/PtUtil"
 	"github.com/iuoon/PuetxGo/PtStatic"
-	"errors"
+	"strconv"
 )
 
 
@@ -41,10 +41,10 @@ const (
 	MessageRetBit = 10
 	//MessageMaskBit 一些标志
 	MessageMaskBit = 12
-
 	//MessageHeaderLen 消息长度
 	MessageHeaderLen = 14
 )
+
 
 
 //GxMessage 消息类，包括消息头和消息体
@@ -60,11 +60,8 @@ func NewGxMessage() *GxMessage {
 	return msg
 }
 
-//CheckFormat 检查消息长度，如果不是8的倍数(因为des加密后长度是8的倍数)，则返回错误
+//CheckFormat 检查消息格式
 func (msg *GxMessage) CheckFormat() error {
-	if (msg.GetLen() % 8) != 0 {
-		return errors.New("msg info error")
-	}
 	return nil
 }
 
@@ -135,7 +132,9 @@ func (msg *GxMessage) get16(t uint32) uint16 {
 
 	i16 := make([]byte, 2)
 	buf.Read(i16)
-	return binary.BigEndian.Uint16(i16)
+	//return binary.BigEndian.Uint16(i16)
+	b,_ := strconv.Atoi(string(i16))
+	return uint16(b)
 }
 
 func (msg *GxMessage) set16(t uint32, ID uint16) {
@@ -148,7 +147,9 @@ func (msg *GxMessage) get32(t uint32) uint32 {
 
 	i32 := make([]byte, 4)
 	buf.Read(i32)
-	return binary.BigEndian.Uint32(i32)
+	//return binary.BigEndian.Uint32(i32)
+	b,_ := strconv.Atoi(string(i32))
+	return uint32(b)
 }
 
 func (msg *GxMessage) set32(t uint32, ID uint32) {
